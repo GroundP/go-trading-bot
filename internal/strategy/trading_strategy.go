@@ -1,10 +1,8 @@
 package strategy
 
-type TradingStrategy interface {
-	GetName()
-	Analyze(market string, candles []Candle)
-}
+import "go-trading-bot/internal/model"
 
-type MovingAverageCrossStrategy struct {
-	name string
+type TradingStrategy interface {
+	GetName() string
+	Analyze(market string, candles []model.Candle) model.Signal
 }

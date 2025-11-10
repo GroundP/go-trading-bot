@@ -2,10 +2,10 @@
 package model
 
 type Candle struct {
-	market       string  `json:"market"`
-	openingPrice float64 `json:"opening_price"`
-	highPrice    float64 `json:"high_price"`
-	lowPrice     float64 `json:"low_price"`
-	tradePrice   float64 `json:"trade_price"`
-	timestamp    int64   `json:"timestamp"`
+	Market       string  `json:"market"`
+	OpeningPrice float64 `json:"opening_price"`
+	HighPrice    float64 `json:"high_price"`
+	LowPrice     float64 `json:"low_price"`
+	TradePrice   float64 `json:"trade_price"`
+	Timestamp    int64   `json:"timestamp"`
 }

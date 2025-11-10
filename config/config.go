@@ -27,6 +27,8 @@ type Config struct {
 
 	AccessKey string
 	SecretKey string
+
+	UpbitApiUrl string
 }
 
 type TradingConfig struct {
@@ -70,6 +72,8 @@ func newConfig() *Config {
 
 		AccessKey: getEnvStr("ACCESS_KEY", ""),
 		SecretKey: getEnvStr("SECRET_KEY", ""),
+
+		UpbitApiUrl: getEnvStr("UPBIT_API_URL", "https://api.upbit.com/v1"),
 	}
 }
 
