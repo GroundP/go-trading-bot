@@ -28,7 +28,7 @@ type Config struct {
 	AccessKey string
 	SecretKey string
 
-	UpbitApiUrl string
+	UpbitAPIUrl string
 }
 
 type TradingConfig struct {
@@ -43,6 +43,30 @@ type TradingConfig struct {
 type Candle struct {
 	Category string `json:"category"`
 	Unit     int    `json:"unit"`
+}
+
+func (c *Candle) BuildAPIPath() string {
+	if c.Category == "minutes" {
+		if !c.validateMinuteUnit() {
+			return ""
+		}
+		return fmt.Sprintf("/candles/%s/%d", c.Category, c.Unit)
+	} else {
+		return fmt.Sprintf("/candles/%s", c.Category)
+	}
+}
+
+func (c *Candle) validateMinuteUnit() bool {
+	unitRange := []int{1, 3, 5, 10, 15, 30, 60, 240}
+	find := false
+	for _, u := range unitRange {
+		if c.Unit == u {
+			find = true
+			break
+		}
+	}
+
+	return find
 }
 
 type MovingAverageCross struct {
@@ -73,7 +97,7 @@ func newConfig() *Config {
 		AccessKey: getEnvStr("ACCESS_KEY", ""),
 		SecretKey: getEnvStr("SECRET_KEY", ""),
 
-		UpbitApiUrl: getEnvStr("UPBIT_API_URL", "https://api.upbit.com/v1"),
+		UpbitAPIUrl: getEnvStr("UPBIT_API_URL", "https://api.upbit.com/v1"),
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 func CreateStrategy(tradingConfig *config.TradingConfig) TradingStrategy {
 	switch strategy := tradingConfig.Strategy; strategy {
 	case "moving-average-cross":
-		return &MovingAverageCrossStrategy{tradingConfig.Strategy}
+		return &MovingAverageCrossStrategy{tradingConfig.Strategy, tradingConfig.MovingAverageCross}
 	default:
 		return nil
 	}
