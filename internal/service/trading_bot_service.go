@@ -4,6 +4,7 @@ import (
 	"go-trading-bot/config"
 	"go-trading-bot/internal/client"
 	"go-trading-bot/internal/logger"
+	"go-trading-bot/internal/model"
 	"go-trading-bot/internal/strategy"
 	"time"
 )
@@ -15,7 +16,7 @@ type TradingBot struct {
 }
 
 func (t *TradingBot) Initialize() {
-	t.marketHandler = &MarketHandler{upbitApiClient: &client.UpbitAPIClient{BaseURL: config.GetConfig().UpbitAPIUrl}}
+	t.marketHandler = &MarketHandler{upbitAPIClient: &client.UpbitAPIClient{BaseURL: config.GetConfig().UpbitAPIUrl}}
 	t.validateMarkets = t.marketHandler.validateAndFilterMarkets()
 }
 
@@ -50,8 +51,18 @@ func (t *TradingBot) runTask() {
 
 	for _, m := range t.validateMarkets {
 		candles := t.marketHandler.GetCandles(m, requireCandleCount)
-		signals := t.strategy.Analyze(m, candles)
-		//handleSignals(signals)
+		signal := t.strategy.Analyze(m, candles)
+		t.handleSignal(signal)
 	}
+}
 
+func (t *TradingBot) handleSignal(signal model.Signal) {
+	switch signal.Type {
+	case model.BUY:
+		logger.Log.Infof("[%v] 매수 신호 -> BUY 주문을 실행합니다.", signal.Market)
+	case model.SELL:
+		logger.Log.Infof("[%v] 매도 신호 -> SELL 주문을 실행합니다.", signal.Market)
+	default:
+		logger.Log.Infof("[%v] HOLD 신호 -> 매매 없음, 포지션 상태: %v", signal.Market, "")
+	}
 }

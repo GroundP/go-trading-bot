@@ -10,16 +10,16 @@ const (
 )
 
 func (s SignalType) String() string {
-	return [...]string{"Pending", "Paid"}[s]
+	return [...]string{"BUY", "SELL", "HOLD"}[s]
 }
 
 type Signal struct {
 	Type   SignalType
 	Market string
 
-	currentPrice float64
-	timestamp    string
+	CurrentPrice float64
+	Timestamp    string
 
-	description  string
-	strategyName string
+	Description  string
+	StrategyName string
 }
