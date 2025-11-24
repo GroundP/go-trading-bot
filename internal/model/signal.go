@@ -22,4 +22,7 @@ type Signal struct {
 
 	Description  string
 	StrategyName string
+
+	// Stage 정보 (사이클 전략에서 사용)
+	Stage *Stage // 포인터로 옵셔널하게 사용
 }

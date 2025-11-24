@@ -1,17 +1,21 @@
 {
-    "markets": [
-        "BTC",
-        "ETH"
-    ],
-    "strategy": "moving-average-cross",
-    "analysis-interval": 60,
-    "candle": {
-        "category": "minutes",
-        "unit": 1
-    },
-    "moving-average-cross": {
-        "short-period": 5,
-        "long-period": 20
-    },
-    "order-amount": 50000.0
+  "markets": [
+    "BTC"
+  ],
+  "strategy": "moving-average-cycle",
+  "analysis-interval": 240,
+  "candle": {
+    "category": "minutes",
+    "unit": 240
+  },
+  "moving-average-cross": {
+    "short-period": 5,
+    "long-period": 20
+  },
+  "moving-average-cycle": {
+    "short-period": 5,
+    "medium-period": 20,
+    "long-period": 40
+  },
+  "order-amount": 50000.0
 }

@@ -51,7 +51,6 @@ func (m *MovingAverageCrossStrategy) Analyze(market string, candles []model.Cand
 
 	description := "이동평균선 교차 없음 - 관망"
 	signal = model.Signal{Type: model.HOLD, Market: market, CurrentPrice: currentCandle.TradePrice, Timestamp: currentTime, Description: description, StrategyName: m.GetName()}
-	m.printSignal(&signal)
 	return signal
 }
 
@@ -66,14 +65,4 @@ func (m *MovingAverageCrossStrategy) calculateMA(candles []model.Candle, period 
 	}
 
 	return sum / float64(period)
-}
-
-func (m *MovingAverageCrossStrategy) printSignal(signal *model.Signal) {
-	logger.Log.Infof("마켓: %v", signal.Market)
-	logger.Log.Infof("신호: %v", signal.Type)
-	logger.Log.Infof("현재가: %.2f", signal.CurrentPrice)
-	logger.Log.Infof("전략: %v", signal.StrategyName)
-	logger.Log.Infof("설명: %v", signal.Description)
-	logger.Log.Infof("시각: %v", signal.Timestamp)
-	logger.Log.Info("캔들 분석 완료 🟢")
 }

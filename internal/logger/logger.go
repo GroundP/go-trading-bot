@@ -2,8 +2,12 @@
 package logger
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -30,6 +34,14 @@ func InitLogger(env string) *logrus.Logger {
 		ForceQuote:      true,
 		DisableColors:   false,
 		DisableQuote:    false,
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			_, b, _, _ := runtime.Caller(0)
+			projectRoot := filepath.Dir(filepath.Dir(filepath.Dir(b))) // logger.go -> internal -> go-trading-bot
+			filename := strings.TrimPrefix(f.File, projectRoot+string(filepath.Separator))
+			funcName := f.Function
+
+			return funcName, fmt.Sprintf("%s:%d", filename, f.Line)
+		},
 	})
 	log.SetReportCaller(true)
 	log.SetLevel(logrus.InfoLevel)

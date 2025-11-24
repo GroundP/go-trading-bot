@@ -74,7 +74,7 @@ func (u *UpbitAPIClient) FetchCandles(market string, path string, requireCandleC
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		logger.Log.Errorf("Failed to fetch candles -> statusCode: %v, msg: %v", resp.StatusCode, string(body))
+		logger.Log.Errorf("Failed to fetch candles -> url: %v, statusCode: %v, msg: %v", baseURL, resp.StatusCode, string(body))
 		return nil, errors.New("failed to fetch candles")
 	}
 

@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"sync"
+
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -29,6 +31,9 @@ type Config struct {
 	SecretKey string
 
 	UpbitAPIUrl string
+
+	TelegramBotToken string
+	TelegramChatID   string
 }
 
 type TradingConfig struct {
@@ -36,6 +41,7 @@ type TradingConfig struct {
 	Strategy           string             `json:"strategy"`
 	Candle             Candle             `json:"candle"`
 	MovingAverageCross MovingAverageCross `json:"moving-average-cross"`
+	MovingAverageCycle MovingAverageCycle `json:"moving-average-cycle"`
 	AnalysisInterval   int                `json:"analysis-interval"`
 	OrderAmount        float64            `json:"order-amount"`
 }
@@ -74,6 +80,12 @@ type MovingAverageCross struct {
 	LongPeriod  int `json:"long-period"`
 }
 
+type MovingAverageCycle struct {
+	ShortPeriod  int `json:"short-period"`
+	MediumPeriod int `json:"medium-period"`
+	LongPeriod   int `json:"long-period"`
+}
+
 func GetConfig() *Config {
 	// singleton
 	once.Do(func() {
@@ -83,6 +95,9 @@ func GetConfig() *Config {
 }
 
 func newConfig() *Config {
+	// .env 파일 로드 (있으면 로드, 없으면 무시)
+	_ = godotenv.Load()
+
 	return &Config{
 		Env:     getEnvStr("ENV", "development"),
 		AppName: getEnvStr("APP_NAME", "go-trading-bot"),
@@ -97,7 +112,9 @@ func newConfig() *Config {
 		AccessKey: getEnvStr("ACCESS_KEY", ""),
 		SecretKey: getEnvStr("SECRET_KEY", ""),
 
-		UpbitAPIUrl: getEnvStr("UPBIT_API_URL", "https://api.upbit.com/v1"),
+		UpbitAPIUrl:      getEnvStr("UPBIT_API_URL", "https://api.upbit.com/v1"),
+		TelegramBotToken: getEnvStr("TELEGRAM_BOT_TOKEN", ""),
+		TelegramChatID:   getEnvStr("TELEGRAM_CHAT_ID", ""),
 	}
 }
 

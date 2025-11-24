@@ -9,7 +9,7 @@ func NewRouter() *gin.Engine {
 
 	v1Group := router.Group("/api/v1")
 	{
-		v1Group.GET("/positions", v1.GetPositions)
+		v1Group.GET("/positions", .)
 	}
 	return router
 }
