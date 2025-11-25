@@ -76,13 +76,16 @@ func (t *TradingBot) runTask() {
 		signal := t.strategy.Analyze(m, candles)
 		t.handleSignal(signal)
 	}
+
+	signals := t.GetAllLatestSignals()
+	utils.SendTelegramMultiAlert(signals)
 }
 
 func (t *TradingBot) handleSignal(signal model.Signal) {
 	t.latestSignal[signal.Market] = signal
 	//t.printSignal(&signal)
 	logger.Log.Infof("SIGNAL INFO:\n%v", t.createSignalInfo(&signal))
-	utils.SendTelegramAlert(signal)
+	//utils.SendTelegramAlert(signal)
 
 	switch signal.Type {
 	case model.BUY:

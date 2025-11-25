@@ -27,6 +27,24 @@ func SendTelegramAlert(signal model.Signal) {
 	sendMessage(token, chatID, message)
 }
 
+func SendTelegramMultiAlert(signals []model.Signal) {
+	cfg := config.GetConfig()
+	token := cfg.TelegramBotToken
+	chatID := cfg.TelegramChatID
+
+	if token == "" || chatID == "" {
+		logger.Log.Debug("Telegram configuration is missing. Skipping alert.")
+		return
+	}
+
+	var totalMessage string
+	for _, signal := range signals {
+		message := formatSignalMessage(signal)
+		totalMessage += message + "\n-----------------------------------------------------\n\n"
+	}
+	sendMessage(token, chatID, totalMessage)
+}
+
 func SendTelegramMessage(message string) {
 	cfg := config.GetConfig()
 	token := cfg.TelegramBotToken
