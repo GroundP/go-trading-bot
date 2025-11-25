@@ -9,7 +9,9 @@ func NewRouter() *gin.Engine {
 
 	v1Group := router.Group("/api/v1")
 	{
-		v1Group.GET("/positions", .)
+		v1Group.GET("/health", func(c *gin.Context) {
+			c.JSON(200, gin.H{"message": "OK"})
+		})
 	}
 	return router
 }

@@ -31,7 +31,7 @@ func (t *TradingBot) RunTradingBot(stopChan <-chan struct{}) {
 	tradingConfig := config.GetTradingConfig()
 	t.strategy = strategy.CreateStrategy(tradingConfig)
 
-	ticker := time.NewTicker(time.Duration(tradingConfig.AnalysisInterval) * time.Second)
+	ticker := time.NewTicker(time.Duration(tradingConfig.AnalysisInterval) * time.Minute)
 	defer ticker.Stop()
 
 	for {

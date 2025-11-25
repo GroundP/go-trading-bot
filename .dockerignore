@@ -1,0 +1,49 @@
+# Git
+.git
+.gitignore
+
+# 빌드 결과물
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 로그 파일
+logs/
+*.log
+
+# 테스트 파일
+*_test.go
+
+# 임시 파일
+*.tmp
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# 환경 설정 파일
+.env
+.env.local
+
+# 문서
+*.md
+README.md
+LICENSE
+
+# Docker 관련
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# 기타
+.DS_Store
+*.bak
+control.sh
+

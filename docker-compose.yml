@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  trading-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-trading-bot
+    restart: unless-stopped
+    
+    # .env 파일에서 환경 변수 자동 로드
+    env_file:
+      - .env
+    
+    # 포트 매핑 (호스트:컨테이너)
+    # .env의 PORT 환경 변수를 사용 (기본값: 5000)
+    ports:
+      - "${PORT:-5000}:${PORT:-5000}"
+    
+    # 볼륨 마운트 (로그 파일 유지)
+    volumes:
+      - ./logs:/app/logs
+      - ./application.json:/app/application.json
+    
+    # 네트워크 설정
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge
+    
