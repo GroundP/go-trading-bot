@@ -10,7 +10,7 @@ func CreateStrategy(tradingConfig *config.TradingConfig) TradingStrategy {
 	case "moving-average-cross":
 		return &MovingAverageCrossStrategy{tradingConfig.Strategy, tradingConfig.MovingAverageCross}
 	case "moving-average-cycle":
-		return &MovingAverageCycleStrategy{tradingConfig.Strategy, tradingConfig.MovingAverageCycle, model.Stage{}}
+		return &MovingAverageCycleStrategy{tradingConfig.Strategy, tradingConfig.MovingAverageCycle, make(map[string]model.Stage)}
 	default:
 		return nil
 	}

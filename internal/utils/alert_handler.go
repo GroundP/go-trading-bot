@@ -7,6 +7,9 @@ import (
 	"go-trading-bot/internal/model"
 	"net/http"
 	"net/url"
+
+	LANG "golang.org/x/text/language"
+	MSG "golang.org/x/text/message"
 )
 
 // SendTelegramAlert sends a trading signal alert to Telegram
@@ -21,6 +24,18 @@ func SendTelegramAlert(signal model.Signal) {
 	}
 
 	message := formatSignalMessage(signal)
+	sendMessage(token, chatID, message)
+}
+
+func SendTelegramMessage(message string) {
+	cfg := config.GetConfig()
+	token := cfg.TelegramBotToken
+	chatID := cfg.TelegramChatID
+
+	if token == "" || chatID == "" {
+		logger.Log.Debug("Telegram configuration is missing. Skipping alert.")
+		return
+	}
 	sendMessage(token, chatID, message)
 }
 
@@ -48,7 +63,8 @@ func formatSignalMessage(signal model.Signal) string {
 	message := fmt.Sprintf("<b>%s [%s] %s</b>\n\n", emoji, signal.Market, action)
 
 	// 현재가 정보
-	message += fmt.Sprintf("💰 <b>현재가:</b> ₩%.2f\n", signal.CurrentPrice)
+	p := MSG.NewPrinter(LANG.Korean)
+	message += p.Sprintf("💰 <b>현재가:</b> %.0f\n", signal.CurrentPrice)
 
 	// Stage 정보 (사이클 전략인 경우)
 	if signal.Stage != nil {

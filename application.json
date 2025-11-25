@@ -1,6 +1,7 @@
 {
   "markets": [
-    "BTC"
+    "BTC",
+    "ETH"
   ],
   "strategy": "moving-average-cycle",
   "analysis-interval": 240,

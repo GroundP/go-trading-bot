@@ -11,7 +11,7 @@ import (
 type MovingAverageCycleStrategy struct {
 	name               string
 	movingAverageCycle config.MovingAverageCycle
-	stage              model.Stage
+	latestStages       map[string]model.Stage
 }
 
 func (m *MovingAverageCycleStrategy) GetName() string {
@@ -110,27 +110,32 @@ func (m *MovingAverageCycleStrategy) calculateSignal(market string, currentPrice
 		}
 	}
 
-	if m.stage.StageNumber != model.STAGE_0 {
-		if m.stage.StageNumber == stageNumber {
-			stageDir = model.STAGE_DIR_MAINTAIN
-		} else if m.stage.StageNumber > stageNumber {
-			stageDir = model.STAGE_DIR_REVERSE
-		} else if m.stage.StageNumber < stageNumber {
-			stageDir = model.STAGE_DIR_NORMAL
+	latestStage, exists := m.latestStages[market]
+	if !exists {
+		stageDir = model.STAGE_DIR_NONE
+	} else {
+		if latestStage.StageNumber != model.STAGE_0 {
+			if latestStage.StageNumber == stageNumber {
+				stageDir = model.STAGE_DIR_MAINTAIN
+			} else if latestStage.StageNumber > stageNumber {
+				stageDir = model.STAGE_DIR_REVERSE
+			} else if latestStage.StageNumber < stageNumber {
+				stageDir = model.STAGE_DIR_NORMAL
+			}
 		}
 	}
 
-	m.stage = model.Stage{
+	m.latestStages[market] = model.Stage{
 		StageNumber: stageNumber,
 		StageDir:    stageDir,
 		Description: stageDescription,
 	}
 
 	// Stage 정보를 포함한 상세 Description 생성
-	description := m.generateDescription(signalType, periods, maCurrent)
+	description := m.generateDescription(signalType, stageDescription, periods, maCurrent)
 
 	// Stage 복사 (Signal에 포함시키기 위해)
-	stageCopy := m.stage
+	stageCopy := m.latestStages[market]
 
 	// Signal 생성
 	signal := model.Signal{
@@ -147,8 +152,7 @@ func (m *MovingAverageCycleStrategy) calculateSignal(market string, currentPrice
 }
 
 // generateDescription은 신호 타입과 MA 정보를 기반으로 설명을 생성합니다
-func (m *MovingAverageCycleStrategy) generateDescription(signalType model.SignalType, periods [3]int, maCurrent [3]float64) string {
-	stageDesc := m.stage.Description
+func (m *MovingAverageCycleStrategy) generateDescription(signalType model.SignalType, stageDesc string, periods [3]int, maCurrent [3]float64) string {
 	maInfo := ""
 
 	switch signalType {

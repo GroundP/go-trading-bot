@@ -11,6 +11,7 @@ import (
 	"go-trading-bot/internal/api"
 	"go-trading-bot/internal/logger"
 	"go-trading-bot/internal/service"
+	"go-trading-bot/internal/utils"
 )
 
 func main() {
@@ -26,13 +27,15 @@ func main() {
 	t := config.GetTradingConfig()
 	logger.Log.Infof("tradingConfig -> %+v\n", t)
 
+	utils.SendTelegramMessage("프로그램 시작 🟢")
+
 	stopChan := make(chan struct{})
 	tradingBot := &service.TradingBot{}
 	tradingBot.Initialize()
 	go tradingBot.RunTradingBot(stopChan)
 
-	// Gin API 서버 시작 (goroutine으로)
-	router := api.NewRouter()
+	// TradingBot 인스턴스를 라우터에 주입
+	router := api.NewRouter(tradingBot)
 	go func() {
 		addr := fmt.Sprintf(":%d", c.Port)
 		logger.Log.Infof("Starting Gin API server on %s 🌐", addr)
@@ -48,5 +51,6 @@ func main() {
 
 	// Graceful shutdown
 	logger.Log.Info("Shutting down Trading Bot 🛑")
+	utils.SendTelegramMessage("프로그램 종료 🔴")
 	close(stopChan)
 }

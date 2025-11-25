@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"go-trading-bot/config"
 	"go-trading-bot/internal/client"
 	"go-trading-bot/internal/logger"
@@ -8,17 +9,22 @@ import (
 	"go-trading-bot/internal/strategy"
 	"go-trading-bot/internal/utils"
 	"time"
+
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 type TradingBot struct {
 	strategy        strategy.TradingStrategy
 	marketHandler   *MarketHandler
 	validateMarkets []string
+	latestSignal    map[string]model.Signal
 }
 
 func (t *TradingBot) Initialize() {
 	t.marketHandler = &MarketHandler{upbitAPIClient: &client.UpbitAPIClient{BaseURL: config.GetConfig().UpbitAPIUrl}}
 	t.validateMarkets = t.marketHandler.validateAndFilterMarkets()
+	t.latestSignal = make(map[string]model.Signal)
 }
 
 func (t *TradingBot) RunTradingBot(stopChan <-chan struct{}) {
@@ -45,6 +51,21 @@ func (t *TradingBot) RunTradingBot(stopChan <-chan struct{}) {
 	}
 }
 
+func (t *TradingBot) GetLatestSignal(market string) model.Signal {
+	if signal, exists := t.latestSignal[market]; exists {
+		return signal
+	}
+	return model.Signal{}
+}
+
+func (t *TradingBot) GetAllLatestSignals() []model.Signal {
+	signals := make([]model.Signal, 0, len(t.latestSignal))
+	for _, signal := range t.latestSignal {
+		signals = append(signals, signal)
+	}
+	return signals
+}
+
 func (t *TradingBot) runTask() {
 	logger.Log.Info("=========runTask===========")
 
@@ -58,7 +79,9 @@ func (t *TradingBot) runTask() {
 }
 
 func (t *TradingBot) handleSignal(signal model.Signal) {
-	t.printSignal(&signal)
+	t.latestSignal[signal.Market] = signal
+	//t.printSignal(&signal)
+	logger.Log.Infof("SIGNAL INFO:\n%v", t.createSignalInfo(&signal))
 	utils.SendTelegramAlert(signal)
 
 	switch signal.Type {
@@ -91,10 +114,27 @@ func (t *TradingBot) printSignal(signal *model.Signal) {
 
 	// Stage 정보가 있으면 출력
 	if signal.Stage != nil {
-		logger.Log.Infof("사이클 단계: %v (%v)", signal.Stage.StageNumber, signal.Stage.Description)
+		logger.Log.Infof("사이클 단계: %v (%v) (%v)", signal.Stage.StageNumber, signal.Stage.StageDir, signal.Stage.Description)
 	}
 
 	logger.Log.Infof("설명: %v", signal.Description)
 	logger.Log.Infof("시각: %v", signal.Timestamp)
 	logger.Log.Info("캔들 분석 완료 🟢")
+}
+
+func (t *TradingBot) createSignalInfo(signal *model.Signal) string {
+	p := message.NewPrinter(language.Korean)
+
+	info := fmt.Sprintf("✔ 마켓: %v\n", signal.Market)
+	info += fmt.Sprintf("✔ 신호: %v\n", signal.Type)
+	info += p.Sprintf("✔ 현재가: %.0f\n", signal.CurrentPrice)
+	info += fmt.Sprintf("✔ 전략: %v\n", signal.StrategyName)
+
+	if signal.Stage != nil {
+		info += fmt.Sprintf("✔ Stage: %v (%v) (%v)\n", signal.Stage.StageNumber, signal.Stage.StageDir, signal.Stage.Description)
+	}
+
+	info += fmt.Sprintf("✔ 설명: %v\n", signal.Description)
+	info += fmt.Sprintf("✔ 시각: %v\n", signal.Timestamp)
+	return info
 }
