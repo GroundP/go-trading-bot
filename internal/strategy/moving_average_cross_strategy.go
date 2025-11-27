@@ -46,7 +46,7 @@ func (m *MovingAverageCrossStrategy) Analyze(market string, candles []model.Cand
 
 	if previousShortMA > previousLongMA && currentShortMA < currentLongMA {
 		description := fmt.Sprintf("▼ 데드 크로스 발생 -> MA%d(%.2f)이 MA%d(%.2f)를 하향 돌파", shortPeriod, currentShortMA, longPeriod, currentLongMA)
-		signal = model.Signal{Type: model.BUY, Market: market, CurrentPrice: currentCandle.TradePrice, Timestamp: currentTime, Description: description, StrategyName: m.GetName()}
+		signal = model.Signal{Type: model.SELL, Market: market, CurrentPrice: currentCandle.TradePrice, Timestamp: currentTime, Description: description, StrategyName: m.GetName()}
 	}
 
 	description := "이동평균선 교차 없음 - 관망"

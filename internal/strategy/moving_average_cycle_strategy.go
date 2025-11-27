@@ -1,7 +1,6 @@
 package strategy
 
 import (
-	"fmt"
 	"go-trading-bot/config"
 	"go-trading-bot/internal/logger"
 	"go-trading-bot/internal/model"
@@ -135,9 +134,17 @@ func (m *MovingAverageCycleStrategy) calculateSignal(market string, currentPrice
 	}
 
 	// Stage 정보를 포함한 상세 Description 생성
-	description := m.generateDescription(signalType, stageDescription, periods, maCurrent)
+	var description string
+	switch signalType {
+	case model.BUY:
+		description += "📈 매수 신호 - "
+	case model.SELL:
+		description += "📉 매도 신호 - "
+	case model.HOLD:
+		description += "⏸️ 관망 - "
+	}
 
-	// Stage 복사 (Signal에 포함시키기 위해)
+	description += stageDescription
 	stageCopy := m.latestStages[market]
 
 	// Signal 생성
@@ -152,27 +159,4 @@ func (m *MovingAverageCycleStrategy) calculateSignal(market string, currentPrice
 	}
 
 	return signal
-}
-
-// generateDescription은 신호 타입과 MA 정보를 기반으로 설명을 생성합니다
-func (m *MovingAverageCycleStrategy) generateDescription(signalType model.SignalType, stageDesc string, periods [3]int, maCurrent [3]float64) string {
-	maInfo := ""
-
-	switch signalType {
-	case model.BUY:
-		maInfo = "📈 매수 신호 - "
-	case model.SELL:
-		maInfo = "📉 매도 신호 - "
-	case model.HOLD:
-		maInfo = "⏸️ 관망 - "
-	}
-
-	maInfo += stageDesc
-	maInfo += " | "
-	maInfo += fmt.Sprintf("MA%d: %.2f, MA%d: %.2f, MA%d: %.2f",
-		periods[0], maCurrent[0],
-		periods[1], maCurrent[1],
-		periods[2], maCurrent[2])
-
-	return maInfo
 }
