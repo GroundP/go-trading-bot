@@ -19,12 +19,14 @@ type TradingBot struct {
 	marketHandler   *MarketHandler
 	validateMarkets []string
 	latestSignal    map[string]model.Signal
+	orderService    *OrderService
 }
 
 func (t *TradingBot) Initialize() {
 	t.marketHandler = &MarketHandler{upbitAPIClient: &client.UpbitAPIClient{BaseURL: config.GetConfig().UpbitAPIUrl}}
 	t.validateMarkets = t.marketHandler.validateAndFilterMarkets()
 	t.latestSignal = make(map[string]model.Signal)
+	t.orderService = &OrderService{positions: make(map[string]model.Position)}
 }
 
 func (t *TradingBot) RunTradingBot(stopChan <-chan struct{}) {
@@ -90,8 +92,10 @@ func (t *TradingBot) handleSignal(signal model.Signal) {
 	switch signal.Type {
 	case model.BUY:
 		logger.Log.Infof("[%v] 매수 신호 -> BUY 주문을 실행합니다.", signal.Market)
+		t.orderService.PlaceOrder(signal.Market, model.BUY, signal.CurrentPrice)
 	case model.SELL:
 		logger.Log.Infof("[%v] 매도 신호 -> SELL 주문을 실행합니다.", signal.Market)
+		t.orderService.PlaceOrder(signal.Market, model.SELL, signal.CurrentPrice)
 	case model.HOLD:
 		logger.Log.Infof("[%v] HOLD 신호 -> 매매 없음, 포지션 상태: %v", signal.Market, "")
 	}

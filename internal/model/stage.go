@@ -5,12 +5,12 @@ type StageNumber int
 
 const (
 	STAGE_0 StageNumber = iota // 초기값
-	STAGE_1                    // 안정 상승기, 단/중/장 배치, 매수 신호
-	STAGE_2                    // 상승 추세 끝, 중/단/장 배치
-	STAGE_3                    // 하락 추세 시작, 중/장/단 배치, 매수 청산
+	STAGE_1                    // 안정 상승기, 단/중/장 배치, 매수 진입
+	STAGE_2                    // 데드크로스, 중/단/장 배치
+	STAGE_3                    // 본격 하락기, 중/장/단 배치, 매수 청산
 	STAGE_4                    // 안정 하락기, 장/중/단 배치, 매도 진입
-	STAGE_5                    // 하락 추세 끝, 장/단/중 배치
-	STAGE_6                    // 상승 추세 시작, 단/장/중 배치, 매도 청산
+	STAGE_5                    // 골든크로스, 장/단/중 배치
+	STAGE_6                    // 본격 상승기, 단/장/중 배치, 매도 청산
 )
 
 func (s StageNumber) String() string {

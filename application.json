@@ -4,7 +4,7 @@
     "ETH"
   ],
   "strategy": "moving-average-cycle",
-  "analysis-interval": 240,
+  "analysis-interval": 90,
   "candle": {
     "category": "minutes",
     "unit": 240
@@ -18,5 +18,5 @@
     "medium-period": 20,
     "long-period": 40
   },
-  "order-amount": 50000.0
+  "order-amount": 1000000.0
 }

@@ -15,6 +15,11 @@ import (
 // SendTelegramAlert sends a trading signal alert to Telegram
 func SendTelegramAlert(signal model.Signal) {
 	cfg := config.GetConfig()
+	if cfg.TelegramSend != "OK" {
+		logger.Log.Debug("Telegram send is not enabled. Skipping alert.")
+		return
+	}
+
 	token := cfg.TelegramBotToken
 	chatID := cfg.TelegramChatID
 
@@ -29,6 +34,11 @@ func SendTelegramAlert(signal model.Signal) {
 
 func SendTelegramMultiAlert(signals []model.Signal) {
 	cfg := config.GetConfig()
+	if cfg.TelegramSend != "OK" {
+		logger.Log.Debug("Telegram send is not enabled. Skipping alert.")
+		return
+	}
+
 	token := cfg.TelegramBotToken
 	chatID := cfg.TelegramChatID
 
@@ -47,6 +57,11 @@ func SendTelegramMultiAlert(signals []model.Signal) {
 
 func SendTelegramMessage(message string) {
 	cfg := config.GetConfig()
+	if cfg.TelegramSend != "OK" {
+		logger.Log.Debug("Telegram send is not enabled. Skipping alert.")
+		return
+	}
+
 	token := cfg.TelegramBotToken
 	chatID := cfg.TelegramChatID
 
@@ -86,44 +101,24 @@ func formatSignalMessage(signal model.Signal) string {
 
 	// Stage 정보 (사이클 전략인 경우)
 	if signal.Stage != nil {
-		var stageEmoji string
-		switch signal.Stage.StageNumber {
-		case model.STAGE_1:
-			stageEmoji = "🚀" // 안정 상승기
-		case model.STAGE_2:
-			stageEmoji = "⬆️" // 상승 추세 끝
-		case model.STAGE_3:
-			stageEmoji = "⚠️" // 하락 추세 시작
-		case model.STAGE_4:
-			stageEmoji = "📉" // 안정 하락기
-		case model.STAGE_5:
-			stageEmoji = "⬇️" // 하락 추세 끝
-		case model.STAGE_6:
-			stageEmoji = "🔄" // 상승 추세 시작
-		default:
-			stageEmoji = "❓"
-		}
 
-		message += fmt.Sprintf("📊 <b>사이클 단계:</b> %s %s\n", stageEmoji, signal.Stage.StageNumber)
-		message += fmt.Sprintf("   <i>%s</i>\n", signal.Stage.Description)
-
+		message += fmt.Sprintf("📊 사이클 단계: <b>%s</b>\n", signal.Stage.StageNumber)
 		// 단계 방향 정보
-		if signal.Stage.StageDir != model.STAGE_DIR_NONE {
-			var dirIcon string
-			var dirText string
-			switch signal.Stage.StageDir {
-			case model.STAGE_DIR_NORMAL:
-				dirIcon = "➡️"
-				dirText = "정상 진행"
-			case model.STAGE_DIR_REVERSE:
-				dirIcon = "🔙"
-				dirText = "역방향 전환"
-			case model.STAGE_DIR_MAINTAIN:
-				dirIcon = "⏸️"
-				dirText = "단계 유지"
-			}
-			message += fmt.Sprintf("   %s %s\n", dirIcon, dirText)
+		var dirIcon string
+		var dirText string
+		switch signal.Stage.StageDir {
+		case model.STAGE_DIR_NORMAL:
+			dirIcon = "➡️"
+			dirText = "정상 진행"
+		case model.STAGE_DIR_REVERSE:
+			dirIcon = "🔙"
+			dirText = "역방향 전환"
+		case model.STAGE_DIR_MAINTAIN:
+			dirIcon = "⏸️"
+			dirText = "단계 유지"
 		}
+
+		message += fmt.Sprintf("✔ <i>%s, %s %s</i>\n", signal.Stage.Description, dirIcon, dirText)
 		message += "\n"
 	}
 

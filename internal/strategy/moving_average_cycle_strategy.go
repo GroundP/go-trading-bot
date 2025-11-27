@@ -79,21 +79,23 @@ func (m *MovingAverageCycleStrategy) calculateSignal(market string, currentPrice
 			stageDescription = "안정 상승기, 단/중/장 배치"
 			if currentShortMA > previousShortMA && currentMediumMA > previousMediumMA && currentLongMA > previousLongMA {
 				signalType = model.BUY // 모두 우상향 중인 경우 매수
+				stageDescription += "(매수 신호📈)"
 			}
 		} else {
-			// STAGE_6: 상승 추세 시작, 단/장/중 배치
+			// STAGE_6: 본격 상승기, 단/장/중 배치
 			stageNumber = model.STAGE_6
-			stageDescription = "상승 추세 시작, 단/장/중 배치"
+			stageDescription = "본격 상승기, 단/장/중 배치(Short 청산)"
 		}
 	} else if currentMediumMA > currentLongMA && currentMediumMA > currentShortMA {
 		if currentShortMA > currentLongMA {
-			// STAGE_2: 상승 추세 끝, 중/단/장 배치
+			// STAGE_2: 데드크로스, 중/단/장 배치
 			stageNumber = model.STAGE_2
-			stageDescription = "상승 추세 끝, 중/단/장 배치"
+			stageDescription = "데드크로스, 중/단/장 배치"
 		} else {
-			// STAGE_3: 하락 추세 시작, 중/장/단 배치
+			// STAGE_3: 본격 하락기, 중/장/단 배치
 			stageNumber = model.STAGE_3
-			stageDescription = "하락 추세 시작, 중/장/단 배치"
+			signalType = model.SELL
+			stageDescription = "본격 하락기, 중/장/단 배치(매도 신호📉)"
 		}
 	} else if currentLongMA > currentMediumMA && currentLongMA > currentShortMA {
 		if currentMediumMA > currentShortMA {
@@ -102,11 +104,12 @@ func (m *MovingAverageCycleStrategy) calculateSignal(market string, currentPrice
 			stageDescription = "안정 하락기, 장/중/단 배치"
 			if currentShortMA < previousShortMA && currentMediumMA < previousMediumMA && currentLongMA < previousLongMA {
 				signalType = model.SELL // 모두 우하향 중인 경우 매도
+				stageDescription += "(Short 진입)"
 			}
 		} else {
-			// STAGE_5: 하락 추세 끝, 장/단/중 배치
+			// STAGE_5: 골든크로스, 장/단/중 배치
 			stageNumber = model.STAGE_5
-			stageDescription = "하락 추세 끝, 장/단/중 배치"
+			stageDescription = "골든크로스, 장/단/중 배치"
 		}
 	}
 

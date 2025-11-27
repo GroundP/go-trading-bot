@@ -32,6 +32,7 @@ type Config struct {
 
 	UpbitAPIUrl string
 
+	TelegramSend     string
 	TelegramBotToken string
 	TelegramChatID   string
 }
@@ -113,6 +114,7 @@ func newConfig() *Config {
 		SecretKey: getEnvStr("SECRET_KEY", ""),
 
 		UpbitAPIUrl:      getEnvStr("UPBIT_API_URL", "https://api.upbit.com/v1"),
+		TelegramSend:     getEnvStr("TELEGRAM_SEND", ""),
 		TelegramBotToken: getEnvStr("TELEGRAM_BOT_TOKEN", ""),
 		TelegramChatID:   getEnvStr("TELEGRAM_CHAT_ID", ""),
 	}
