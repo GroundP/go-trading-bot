@@ -18,7 +18,7 @@ type Position struct {
 }
 
 func (p Position) String() string {
-	return fmt.Sprintf("[%v] Quantity: %f, EntryPrice: %f, Profit: %f", p.Market, p.Quantity, p.EntryPrice, p.Profit)
+	return fmt.Sprintf("[%v] Status: %v, Quantity: %f, EntryPrice: %f, Profit: %f", p.Market, p.Status, p.Quantity, p.EntryPrice, p.Profit)
 }
 
 type Positions []Position

@@ -28,7 +28,7 @@ func SendTelegramAlert(signal model.Signal) {
 		return
 	}
 
-	message := formatSignalMessage(signal)
+	message := formatSignalMessage(signal, "")
 	sendMessage(token, chatID, message)
 }
 
@@ -52,6 +52,8 @@ func SendTelegramMultiAlert(actions []model.Action) {
 		message := formatActionMessage(action)
 		totalMessage += message + "\n-----------------------------------------------------\n\n"
 	}
+
+	logger.Log.Debugf("Telegram alert message: %s", totalMessage)
 	sendMessage(token, chatID, totalMessage)
 }
 
@@ -73,7 +75,7 @@ func SendTelegramMessage(message string) {
 }
 
 // formatSignalMessage formats the trading signal into a readable message
-func formatSignalMessage(signal model.Signal) string {
+func formatSignalMessage(signal model.Signal, usdtPrice string) string {
 	var emoji string
 	var action string
 
@@ -97,7 +99,7 @@ func formatSignalMessage(signal model.Signal) string {
 
 	// 현재가 정보
 	p := MSG.NewPrinter(LANG.Korean)
-	message += p.Sprintf("💰 <b>현재가:</b> %.0f\n", signal.CurrentPrice)
+	message += p.Sprintf("💰 <b>현재가:</b> %.0f (%s)\n", signal.CurrentPrice, usdtPrice)
 
 	// Stage 정보 (사이클 전략인 경우)
 	if signal.Stage != nil {
@@ -135,7 +137,7 @@ func formatSignalMessage(signal model.Signal) string {
 }
 
 func formatActionMessage(action model.Action) string {
-	message := formatSignalMessage(action.Signal)
+	message := formatSignalMessage(action.Signal, action.USDTPrice)
 	message += "\n\n"
 
 	// INSERT_YOUR_CODE

@@ -8,6 +8,7 @@ import (
 	"go-trading-bot/internal/model"
 	"go-trading-bot/internal/strategy"
 	"go-trading-bot/internal/utils"
+	"strings"
 	"time"
 
 	"golang.org/x/text/language"
@@ -23,7 +24,7 @@ type TradingBot struct {
 }
 
 func (t *TradingBot) Initialize() {
-	t.marketHandler = &MarketHandler{upbitAPIClient: &client.UpbitAPIClient{BaseURL: config.GetConfig().UpbitAPIUrl}}
+	t.marketHandler = &MarketHandler{upbitAPIClient: &client.UpbitAPIClient{BaseURL: config.GetConfig().UpbitAPIUrl}, binanceAPIClient: &client.BinanceAPIClient{}}
 	t.validateMarkets = t.marketHandler.validateAndFilterMarkets()
 	t.latestSignal = make(map[string]model.Signal)
 	t.orderService = &OrderService{positions: make(map[string]model.Position)}
@@ -83,7 +84,6 @@ func (t *TradingBot) runTask() {
 	positions := t.marketHandler.GetPositions()
 	actions := t.createActions(signals, positions)
 	utils.SendTelegramMultiAlert(actions)
-	logger.Log.Infof("포지션 정보: %v", positions)
 }
 
 func (t *TradingBot) handleSignal(signal model.Signal) {
@@ -152,10 +152,20 @@ func (t *TradingBot) createSignalInfo(signal *model.Signal) string {
 func (t *TradingBot) createActions(signals []model.Signal, positions model.Positions) []model.Action {
 	actions := make([]model.Action, 0, len(signals))
 	for _, signal := range signals {
+		asset := strings.Split(signal.Market, "-")[1]
 		var position model.Position
 		for _, p := range positions {
-			if p.Market == signal.Market {
+			if asset == p.Market {
 				position = p
+				break
+			}
+		}
+
+		var usdtPrice string
+		binancePrices := t.marketHandler.GetBinancePrices()
+		for _, price := range binancePrices {
+			if price.Asset == asset {
+				usdtPrice = price.Price
 				break
 			}
 		}
@@ -164,8 +174,14 @@ func (t *TradingBot) createActions(signals []model.Signal, positions model.Posit
 			Market:   signal.Market,
 			Signal:   signal,
 			Position: position,
+			USDTPrice: usdtPrice,
 		}
 		actions = append(actions, action)
 	}
+
+	for _, action := range actions {
+		logger.Log.Infof("ACTION: %#v", action)
+	}
+
 	return actions
 }

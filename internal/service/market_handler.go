@@ -9,6 +9,7 @@ import (
 
 type MarketHandler struct {
 	upbitAPIClient *client.UpbitAPIClient
+	binanceAPIClient *client.BinanceAPIClient
 }
 
 func (m *MarketHandler) validateAndFilterMarkets() (validMarkets []string) {
@@ -93,4 +94,24 @@ func (m *MarketHandler) GetPositions() (positions model.Positions) {
 	}
 
 	return positions
+}
+
+func (m *MarketHandler) GetBinancePrices() (prices []model.Price) {
+	config := config.GetTradingConfig()
+	binancePrices, err := m.binanceAPIClient.GetPrices()
+	if err != nil {
+		logger.Log.Errorf("Failed to fetch binance prices: %v", err)
+		return []model.Price{}
+	}
+
+	for _, price := range binancePrices {
+		for _, market := range config.Markets {
+			targetSymbol := market + "USDT"
+			if price.Symbol == targetSymbol {
+				prices = append(prices, model.Price{Asset: market, Price: price.Price})
+			}
+		}
+	}
+
+	return prices
 }

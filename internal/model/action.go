@@ -6,6 +6,7 @@ type Action struct {
 	Market   string
 	Signal   Signal
 	Position Position
+	USDTPrice string
 }
 
 func (a Action) String() string {
