@@ -78,3 +78,19 @@ func (m *MarketHandler) GetCandles(market string, requireCandleCount int) (candl
 
 	return candles
 }
+
+func (m *MarketHandler) GetPositions() (positions model.Positions) {
+	config := config.GetConfig()
+	if config.AccessKey == "" || config.SecretKey == "" {
+		logger.Log.Error("AccessKey 또는 SecretKey가 설정되지 않았습니다.")
+		return positions
+	}
+
+	positions, err := m.upbitAPIClient.FetchBalance(config.AccessKey, config.SecretKey)
+	if err != nil {
+		logger.Log.Errorf("Failed to fetch positions: %v", err)
+		return positions
+	}
+
+	return positions
+}

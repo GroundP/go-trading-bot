@@ -32,7 +32,7 @@ func SendTelegramAlert(signal model.Signal) {
 	sendMessage(token, chatID, message)
 }
 
-func SendTelegramMultiAlert(signals []model.Signal) {
+func SendTelegramMultiAlert(actions []model.Action) {
 	cfg := config.GetConfig()
 	if cfg.TelegramSend != "OK" {
 		logger.Log.Debug("Telegram send is not enabled. Skipping alert.")
@@ -48,8 +48,8 @@ func SendTelegramMultiAlert(signals []model.Signal) {
 	}
 
 	var totalMessage string
-	for _, signal := range signals {
-		message := formatSignalMessage(signal)
+	for _, action := range actions {
+		message := formatActionMessage(action)
 		totalMessage += message + "\n-----------------------------------------------------\n\n"
 	}
 	sendMessage(token, chatID, totalMessage)
@@ -131,6 +131,28 @@ func formatSignalMessage(signal model.Signal) string {
 	message += fmt.Sprintf("🎯 <b>전략:</b> %s\n", signal.StrategyName)
 	message += fmt.Sprintf("🕐 <b>시각:</b> %s", signal.Timestamp)
 
+	return message
+}
+
+func formatActionMessage(action model.Action) string {
+	message := formatSignalMessage(action.Signal)
+	message += "\n\n"
+
+	// INSERT_YOUR_CODE
+	// 포지션 정보 출력
+	message += "\n"
+	message += "<b>📦 포지션 정보</b>\n"
+	if action.Position.Status == model.POSITION_BUY {
+		profit := (action.Signal.CurrentPrice - action.Position.EntryPrice) * action.Position.Quantity
+		message += fmt.Sprintf(
+			"상태: <b>보유중</b>\n수량: <b>%f</b>\n진입가: <b>%f</b>\n수익: <b>%f</b>\n",
+			action.Position.Quantity,
+			action.Position.EntryPrice,
+			profit,
+		)
+	} else {
+		message += "상태: <b>없음</b>\n"
+	}
 	return message
 }
 

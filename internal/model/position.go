@@ -17,6 +17,16 @@ type Position struct {
 	Profit     float64
 }
 
-func (p *Position) String() string {
-	return fmt.Sprintf("Market: %v, Status: %v, Quantity: %.2f, EntryPrice: %.2f, Profit: %.2f", p.Market, p.Status, p.Quantity, p.EntryPrice, p.Profit)
+func (p Position) String() string {
+	return fmt.Sprintf("[%v] Quantity: %f, EntryPrice: %f, Profit: %f", p.Market, p.Quantity, p.EntryPrice, p.Profit)
+}
+
+type Positions []Position
+
+func (p Positions) String() string {
+	result := ""
+	for _, position := range p {
+		result += position.String() + "\n"
+	}
+	return result
 }

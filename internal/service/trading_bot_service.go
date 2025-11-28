@@ -80,7 +80,10 @@ func (t *TradingBot) runTask() {
 	}
 
 	signals := t.GetAllLatestSignals()
-	utils.SendTelegramMultiAlert(signals)
+	positions := t.marketHandler.GetPositions()
+	actions := t.createActions(signals, positions)
+	utils.SendTelegramMultiAlert(actions)
+	logger.Log.Infof("포지션 정보: %v", positions)
 }
 
 func (t *TradingBot) handleSignal(signal model.Signal) {
@@ -144,4 +147,25 @@ func (t *TradingBot) createSignalInfo(signal *model.Signal) string {
 	info += fmt.Sprintf("✔ 설명: %v\n", signal.Description)
 	info += fmt.Sprintf("✔ 시각: %v\n", signal.Timestamp)
 	return info
+}
+
+func (t *TradingBot) createActions(signals []model.Signal, positions model.Positions) []model.Action {
+	actions := make([]model.Action, 0, len(signals))
+	for _, signal := range signals {
+		var position model.Position
+		for _, p := range positions {
+			if p.Market == signal.Market {
+				position = p
+				break
+			}
+		}
+
+		action := model.Action{
+			Market:   signal.Market,
+			Signal:   signal,
+			Position: position,
+		}
+		actions = append(actions, action)
+	}
+	return actions
 }
