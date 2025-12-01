@@ -144,6 +144,13 @@ func (u *UpbitAPIClient) FetchBalance(accessKey, secretKey string) ([]model.Posi
 			logger.Log.Errorf("Failed to parse balance: %v", err)
 			continue
 		}
+
+		locked, err := strconv.ParseFloat(positionMap["locked"].(string), 64)
+		if err != nil {
+			logger.Log.Errorf("Failed to parse locked: %v", err)
+			continue
+		}
+
 		avgBuyPrice, err := strconv.ParseFloat(positionMap["avg_buy_price"].(string), 64)
 		if err != nil {
 			logger.Log.Errorf("Failed to parse avg_buy_price: %v", err)
@@ -153,7 +160,7 @@ func (u *UpbitAPIClient) FetchBalance(accessKey, secretKey string) ([]model.Posi
 		result = append(result, model.Position{
 			Status:     model.POSITION_BUY,
 			Market:     positionMap["currency"].(string),
-			Quantity:   balance,
+			Quantity:   balance + locked,
 			EntryPrice: avgBuyPrice,
 			Profit:     0,
 		})
